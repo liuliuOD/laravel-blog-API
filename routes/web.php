@@ -24,5 +24,5 @@ Route::prefix('auth')->group(function(){
 });
 
 Route::prefix('articles')->group(function () {
-    Route::get('/', "ArticlesController@index");
+    Route::resource('/', "ArticlesController");
 });
