@@ -35,7 +35,8 @@
     },
     "autoload": {
         "psr-4": {
-            "App\\": "app/"
+            "App\\": "app/",
+            "BlogAPI\\": "app/BlogAPI/"
         },
         "classmap": [
             "database/seeds",
