@@ -17,11 +17,22 @@ class AuthController extends Controller
 
     public function __construct(UserService $userService)
     {
-        $this->middleware('auth:api', ['except' => ['login', 'register', 'resetPassword']]);
-
         $this->userService = $userService;
     }
 
+    /**
+     * /login 帳號登入
+     *
+     * @bodyParam email string required 電子郵件
+     * @bodyParam password string required 密碼
+     *
+     * @responseFile 200 responses/auth/login.json
+     * @responseFile 400 responses/errors/400.json
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     * @throws InvalidParameterException
+     */
     public function login (Request $request)
     {
         $params = $request->only(['email', 'password']);
@@ -39,6 +50,20 @@ class AuthController extends Controller
         return $this->responseWithToken($token);
     }
 
+    /**
+     * /register 申請帳號
+     *
+     * @bodyParam user_name string required 使用者名稱
+     * @bodyParam email string required 電子郵件
+     * @bodyParam password string required 密碼
+     *
+     * @responseFile 201 responses/auth/register.json
+     * @responseFile 400 responses/errors/400.json
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     * @throws InvalidParameterException
+     */
     public function register (Request $request)
     {
         $params = $request->only(['user_name', 'email', 'password']);
@@ -58,6 +83,20 @@ class AuthController extends Controller
         return Response()->json([self::RESPONSE_OK], self::RESPONSE_OK_CODE);
     }
 
+    /**
+     * /reset-password 忘記密碼 - 密碼更新
+     * tested.
+     *
+     * @bodyParam email string required 電子郵件
+     * @bodyParam password string required 密碼
+     *
+     * @responseFile 200 responses/v1/auth/login.json
+     * @responseFile 400 responses/errors/400.json
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     * @throws InvalidParameterException
+     */
     public function resetPassword (Request $request)
     {
         $params = $request->only(['email', 'password']);
