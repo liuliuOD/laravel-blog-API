@@ -28,4 +28,13 @@ class UserService
             'password' => \Hash::make($params['password'])
         ]);
     }
+
+    public function resetPassword($email, $password)
+    {
+        $criteria = Criteria::create()->where('email', $email);
+
+        return $this->userRepository->getQuery($criteria)->update([
+            'password' => \Hash::make($password)
+        ]);
+    }
 }

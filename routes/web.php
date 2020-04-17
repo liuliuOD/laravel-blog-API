@@ -18,8 +18,9 @@ Route::get('/', function () {
 });
 
 Route::prefix('auth')->middleware('api')->group(function(){
-    Route::post('/login', "AuthController@login");
-    Route::post('/register', "AuthController@register");
+    Route::post('/login', 'AuthController@login');
+    Route::post('/register', 'AuthController@register');
+    Route::post('/reset-password', 'AuthController@resetPassword');
 });
 
 Route::prefix('articles')->group(function () {

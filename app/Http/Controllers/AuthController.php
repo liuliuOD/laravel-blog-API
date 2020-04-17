@@ -17,7 +17,7 @@ class AuthController extends Controller
 
     public function __construct(UserService $userService)
     {
-        $this->middleware('auth:api', ['except' => ['login', 'register']]);
+        $this->middleware('auth:api', ['except' => ['login', 'register', 'resetPassword']]);
 
         $this->userService = $userService;
     }
@@ -51,10 +51,29 @@ class AuthController extends Controller
         
         if ($user = $this->userService->findByEmail($params["email"])) {
             throw new InvalidParameterException("已經是會員囉！！");
-        } else {
-            $user = $this->userService->registerUser($params);
         }
 
+        $user = $this->userService->registerUser($params);
+
         return Response()->json([self::RESPONSE_OK], self::RESPONSE_OK_CODE);
+    }
+
+    public function resetPassword (Request $request)
+    {
+        $params = $request->only(['email', 'password']);
+
+        $valid = (new UserValidator($params))->setResetPasswordRule();
+
+        if (! $valid->passes()) {
+            throw new InvalidParameterException($valid->errors()->first());
+        }
+
+        if (! $user = $this->userService->findByEmail($params["email"])) {
+            throw new InvalidParameterException("你不是會員！！");
+        }
+
+        $this->userService->resetPassword($params['email'], $params['password']);
+
+        return $this->responseWithToken(auth()->login($user));
     }
 }

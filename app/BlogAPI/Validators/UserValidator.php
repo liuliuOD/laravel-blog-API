@@ -45,6 +45,16 @@ class UserValidator
         return $this;
     }
 
+    public function setResetPasswordRule()
+    {
+        $this->rules = [
+            'email' => 'required|email|exists:users,email',
+            'password' => 'required|min:6'
+        ];
+
+        return $this;
+    }
+
     public function passes()
     {
         $this->validator = validator()->make($this->params, $this->rules, $this->messages);
