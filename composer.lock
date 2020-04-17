@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "6558f74828bca9ebecac73d90cea4b1a",
+    "content-hash": "22e7cc44348dceaf05d90e9b21304a03",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -1881,6 +1881,60 @@
                 "uuid"
             ],
             "time": "2020-03-29T20:13:32+00:00"
+        },
+        {
+            "name": "recca0120/repository",
+            "version": "2.3.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/recca0120/laravel-repository.git",
+                "reference": "4cc63b4cd04a003e15e96dcf4bbbe43d822781b8"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/recca0120/laravel-repository/zipball/4cc63b4cd04a003e15e96dcf4bbbe43d822781b8",
+                "reference": "4cc63b4cd04a003e15e96dcf4bbbe43d822781b8",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/cache": "^5.1|^6.0|^7.0",
+                "illuminate/database": "^5.1|^6.0|^7.0",
+                "illuminate/events": "^5.1|^6.0|^7.0",
+                "illuminate/pagination": "^5.1|^6.0|^7.0",
+                "illuminate/support": "^5.1|^6.0|^7.0",
+                "php": ">=5.5.9"
+            },
+            "require-dev": {
+                "fzaninotto/faker": "^1.7",
+                "mockery/mockery": "^0.9|^1.0",
+                "nesbot/carbon": "^1.20|^2.0",
+                "phpunit/phpunit": "^4.8|^5.4|^6.1|^7.0|^8.0|^9.0"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "src/polyfill.php"
+                ],
+                "psr-4": {
+                    "Recca0120\\Repository\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "recca0120",
+                    "email": "recca0120@gmail.com"
+                }
+            ],
+            "description": "Repository for Laravel 5",
+            "keywords": [
+                "laravel",
+                "repository"
+            ],
+            "time": "2020-04-12T19:12:15+00:00"
         },
         {
             "name": "swiftmailer/swiftmailer",
