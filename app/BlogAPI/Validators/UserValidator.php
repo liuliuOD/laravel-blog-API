@@ -24,11 +24,21 @@ class UserValidator
         ];
     }
 
-    public function setRegisterValid()
+    public function setRegisterRule()
     {
         $this->rules = [
             'user_name' => 'required',
             'email' => 'required|email',
+            'password' => 'required|min:6'
+        ];
+
+        return $this;
+    }
+
+    public function setLoginRule()
+    {
+        $this->rules = [
+            'email' => 'required|email|exists:users,email',
             'password' => 'required|min:6'
         ];
 

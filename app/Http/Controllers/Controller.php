@@ -10,4 +10,7 @@ use Illuminate\Routing\Controller as BaseController;
 class Controller extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
+
+    const RESPONSE_OK = 'OK';
+    const RESPONSE_OK_CODE = 201;
 }
