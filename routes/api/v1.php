@@ -20,6 +20,7 @@ Route::prefix('auth')->group(function(){
     Route::post('/reset-password', 'AuthController@resetPassword');
 });
 
-Route::prefix('articles')->group(function () {
-    Route::resource('/', 'ArticlesController')->except(["create", "edit"]);
+Route::middleware('auth:api')->group(function () {
+    Route::resource('articles', 'ArticlesController')
+        ->except(['create', 'edit']);
 });
