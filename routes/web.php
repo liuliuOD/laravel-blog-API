@@ -18,11 +18,12 @@ Route::get('/', function () {
 });
 
 Route::prefix('auth')->group(function(){
+    Route::get('/me', 'AuthController@me');
     Route::post('/login', 'AuthController@login');
     Route::post('/register', 'AuthController@register');
     Route::post('/reset-password', 'AuthController@resetPassword');
 });
 
 Route::prefix('articles')->group(function () {
-    Route::resource('/', "ArticlesController");
+    Route::resource('/', "ArticlesController")->except(["create"]);
 });

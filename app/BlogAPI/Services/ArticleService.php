@@ -1,40 +1,59 @@
 <?php
 namespace BlogAPI\Services;
 
+use \DB;
 use Recca0120\Repository\Criteria;
+use BlogAPI\Repositories\TagRepository;
 use BlogAPI\Repositories\ArticleRepository;
+use BlogAPI\Repositories\TagArticleRepository;
+use BlogAPI\Exceptions\InternalServerException;
 
 class ArticleService
 {
+    protected $tagRepository;
     protected $articleRepository;
+    protected $tagArticleRepository;
 
-    public function __construct(ArticleRepository $articleRepository)
+    public function __construct(
+        TagRepository $tagRepository,
+        ArticleRepository $articleRepository,
+        TagArticleRepository $tagArticleRepository
+        )
     {
+        $this->tagRepository = $tagRepository;
         $this->articleRepository = $articleRepository;
+        $this->tagArticleRepository = $tagArticleRepository;
     }
 
-    // public function findByEmail(string $email)
-    // {
-    //     $criteria = Criteria::create()->where('email', $email);
+    public function createArticle($params, $user_id)
+    {
+        return $this->articleRepository->create([
+            'title' => $params['title'],
+            'content' => $params['content'],
+            'user_id' => $user_id
+        ]);
+    }
 
-    //     return $this->userRepository->first($criteria);
-    // }
+    public function createArticleAndTag($params, $user_id)
+    {
+        DB::beginTransaction();
+        try {
+            $article = $this->createArticle($params, $user_id);
 
-    // public function registerUser($params)
-    // {
-    //     return $this->userRepository->create([
-    //         'user_name' => $params['user_name'],
-    //         'email' => $params['email'],
-    //         'password' => \Hash::make($params['password'])
-    //     ]);
-    // }
+            $tagIds = $this->tagRepository
+                ->firstOrCreateTags($params['tag'])
+                ->pluck('id')
+                ->toArray();
 
-    // public function resetPassword($email, $password)
-    // {
-    //     $criteria = Criteria::create()->where('email', $email);
+            $tagArticles = $this->tagArticleRepository->firstOrCreateTagUsers($tagIds, $article->id);
 
-    //     return $this->userRepository->getQuery($criteria)->update([
-    //         'password' => \Hash::make($password)
-    //     ]);
-    // }
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            throw new InternalServerException();
+        }
+
+        return $tagArticles;
+    }
 }
