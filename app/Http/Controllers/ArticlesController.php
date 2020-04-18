@@ -74,17 +74,6 @@ class ArticlesController extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -93,7 +82,26 @@ class ArticlesController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $params = $request->only(['title', 'content', 'tag']);
+
+        $valid = (new ArticleValidator($params))->setUpdateArticleRule();
+
+        if (! $valid->passes()) {
+            throw new InvalidParameterException($valid->errors()->first());
+        }
+
+        if (! $user = auth()->user()) {
+            throw new UnauthorizationException();
+        }
+
+        $article = $this->articleService->findById($id);
+        if ($user['id'] != $article['user_id']) {
+            throw new UnauthorizationException('你不能修改別人的文章。');
+        }
+
+        $this->articleService->updateArticleAndTag($params, $id);
+
+        return response()->json(self::RESPONSE_OK, self::RESPONSE_OK_CODE);
     }
 
     /**

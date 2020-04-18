@@ -2,6 +2,7 @@
 namespace BlogAPI\Services;
 
 use \DB;
+use Illuminate\Support\Arr;
 use Recca0120\Repository\Criteria;
 use BlogAPI\Repositories\TagRepository;
 use BlogAPI\Repositories\ArticleRepository;
@@ -25,6 +26,11 @@ class ArticleService
         $this->tagArticleRepository = $tagArticleRepository;
     }
 
+    public function findById($id)
+    {
+        return $this->articleRepository->find($id);
+    }
+
     public function createArticle($params, $user_id)
     {
         return $this->articleRepository->create([
@@ -32,6 +38,23 @@ class ArticleService
             'content' => $params['content'],
             'user_id' => $user_id
         ]);
+    }
+
+    public function updateArticle($params, $id)
+    {
+        if (Arr::exists($params, 'title')) {
+            $attribute['title'] = $params['title'];
+        }
+
+        if (Arr::exists($params, 'content')) {
+            $attribute['content'] = $params['content'];
+        }
+
+        if(! isset($attribute)) {
+            return $this;
+        }
+
+        return $this->articleRepository->update($id, $attribute);
     }
 
     public function createArticleAndTag($params, $user_id)
@@ -55,5 +78,42 @@ class ArticleService
         }
 
         return $tagArticles;
+    }
+
+    public function updateArticleAndTag($params, $article_id)
+    {
+        DB::beginTransaction();
+        try {
+            $article = $this->updateArticle($params, $article_id);
+
+            if (Arr::exists($params, 'tag')) {
+                $tagIds = $this->tagRepository
+                    ->firstOrCreateTags($params['tag'])
+                    ->pluck('id')
+                    ->toArray();
+                $this->tagArticleRepository->firstOrCreateTagUsers($tagIds, $article_id);
+
+                $currentTagIds = $this->tagArticleRepository
+                    ->findByArticleId($article_id)
+                    ->pluck('tag_id')
+                    ->toArray();
+
+                $deleteTagIds = array_diff($currentTagIds, $tagIds);
+                $criteria = Criteria::create()
+                    ->where('article_id', $article_id)
+                    ->whereIn('tag_id', $deleteTagIds);
+                $this->tagArticleRepository
+                    ->get($criteria)
+                    ->map(function ($tagArticle) {
+                        $tagArticle->delete();
+                    });
+            }
+
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            throw new InternalServerException($e->getMessage());
+        }
     }
 }

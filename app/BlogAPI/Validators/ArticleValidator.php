@@ -34,6 +34,17 @@ class ArticleValidator
         return $this;
     }
 
+    public function setUpdateArticleRule()
+    {
+        $this->rules = [
+            'title' => 'required_without_all:content,tag|string|max:256',
+            'content' => 'required_without_all:title,tag|string',
+            'tag' => 'required_without_all:title,content|array|max:32',
+        ];
+
+        return $this;
+    }
+
     public function passes()
     {
         $this->validator = validator()->make($this->params, $this->rules, $this->messages);

@@ -3,6 +3,7 @@
 namespace BlogAPI\Repositories;
 
 use BlogAPI\Models\TagArticle;
+use Recca0120\Repository\Criteria;
 use Recca0120\Repository\EloquentRepository;
 
 class TagArticleRepository extends EloquentRepository
@@ -27,5 +28,12 @@ class TagArticleRepository extends EloquentRepository
         return collect($tagIds)->map(function ($tagId) use ($articleId){
             return $this->firstOrCreateTagUser($tagId, $articleId);
         });
+    }
+
+    public function findByArticleId(int $articleId)
+    {
+        $criteria = Criteria::create()->where('article_id', $articleId);
+
+        return $this->first($criteria);
     }
 }

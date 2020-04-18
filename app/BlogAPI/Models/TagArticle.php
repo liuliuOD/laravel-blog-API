@@ -3,10 +3,11 @@
 namespace BlogAPI\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class TagArticle extends Model
 {
-    protected $updated_at = null;
+    use SoftDeletes;
 
     protected $guarded = [];
 }
