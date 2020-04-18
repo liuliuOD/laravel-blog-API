@@ -80,7 +80,7 @@ class AuthController extends Controller
 
         $user = $this->userService->registerUser($params);
 
-        return Response()->json([self::RESPONSE_OK], self::RESPONSE_OK_CODE);
+        return Response()->json(self::RESPONSE_OK, self::RESPONSE_201);
     }
 
     /**

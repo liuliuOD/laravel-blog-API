@@ -31,11 +31,26 @@ class ArticlesController extends Controller
     /**
      * Display a listing of the resource.
      *
+     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
+        $limit = $request->get('limit', 10);
+        $articles = $this->articleService
+            ->findCanReadArticles($request->user()['id'], $limit);
+
+        $articleIds = collect($articles->toArray()['data'])->pluck('id')->toArray();
+        $articles = $this->articleService
+                    ->findByIds($articleIds)
+                    ->map(function ($article) {
+                        $article = $article->only(['id', 'title', 'content', 'tags']);
+                        $article['tags'] = $article['tags']->pluck('tag');
+
+                        return $article;
+                    });
         
+        return response()->json($articles, self::RESPONSE_200);
     }
 
     /**
@@ -56,18 +71,32 @@ class ArticlesController extends Controller
 
         $tagArticles = $this->articleService->createArticleAndTag($params, $request->user()->id);
 
-        return response()->json(self::RESPONSE_OK, self::RESPONSE_OK_CODE);
+        return response()->json(self::RESPONSE_OK, self::RESPONSE_201);
     }
 
     /**
      * Display the specified resource.
      *
+     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Request $request, $id)
     {
-        //
+        $article = $this->articleService->findByIdWithTag($id)->first();
+        if (! $article) {
+            throw new NotFoundException();
+        }
+
+        $userId = $request->user()->id;
+        $permission = $this->articleService->findPermissionByUserIdAndArticleId($userId, $id)->first();
+        if (($userId != $article['user_id']) && ! $article['is_free'] && (! $permission || $permission->read === false)) {
+            throw new ForbiddenException();
+        }
+
+        $article = $article->only(['id', 'title', 'content', 'tags']);
+        $article['tags'] = $article['tags']->pluck('tag');
+        return response()->json($article, self::RESPONSE_200);
     }
 
     /**
@@ -97,7 +126,7 @@ class ArticlesController extends Controller
 
         $this->articleService->updateArticleAndTag($params, $id);
 
-        return response()->json(self::RESPONSE_OK, self::RESPONSE_OK_CODE);
+        return response()->json(self::RESPONSE_OK, self::RESPONSE_201);
     }
 
     /**
@@ -118,6 +147,6 @@ class ArticlesController extends Controller
 
         $this->articleService->deleteArticle($id);
 
-        return response()->json(self::RESPONSE_OK, self::RESPONSE_OK_CODE);
+        return response()->json(self::RESPONSE_OK, self::RESPONSE_201);
     }
 }

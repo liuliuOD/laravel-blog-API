@@ -12,5 +12,6 @@ class Controller extends BaseController
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
 
     const RESPONSE_OK = 'OK';
-    const RESPONSE_OK_CODE = 201;
+    const RESPONSE_200 = 200;
+    const RESPONSE_201 = 201;
 }

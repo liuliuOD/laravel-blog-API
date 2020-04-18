@@ -8,27 +8,64 @@ use BlogAPI\Repositories\TagRepository;
 use BlogAPI\Repositories\ArticleRepository;
 use BlogAPI\Repositories\TagArticleRepository;
 use BlogAPI\Exceptions\InternalServerException;
+use BlogAPI\Repositories\UserArticlePermissionRepository;
 
 class ArticleService
 {
     protected $tagRepository;
     protected $articleRepository;
     protected $tagArticleRepository;
+    protected $userArticlePermissionRepository;
 
     public function __construct(
         TagRepository $tagRepository,
         ArticleRepository $articleRepository,
-        TagArticleRepository $tagArticleRepository
-        )
+        TagArticleRepository $tagArticleRepository,
+        UserArticlePermissionRepository $userArticlePermissionRepository
+    )
     {
         $this->tagRepository = $tagRepository;
         $this->articleRepository = $articleRepository;
         $this->tagArticleRepository = $tagArticleRepository;
+        $this->userArticlePermissionRepository = $userArticlePermissionRepository;
+    }
+
+    public function findCanReadArticles($userId, $limit)
+    {
+        return DB::table('articles')
+        ->select(['articles.id', 'articles.title', 'articles.content'])
+            ->leftJoin('user_article_permissions', 'articles.id', 'user_article_permissions.article_id')
+            ->where('user_article_permissions.user_id', $userId)
+            ->where('user_article_permissions.read', true)
+            ->orWhere('articles.is_free', true)
+            ->paginate($limit);
+    }
+
+    public function findPermissionByUserIdAndArticleId($userId, $articleId)
+    {
+        $criteria = Criteria::create()
+            ->where('user_id', $userId)
+            ->where('article_id', $articleId);
+        return $this->userArticlePermissionRepository->get($criteria);
     }
 
     public function findById($id)
     {
         return $this->articleRepository->find($id);
+    }
+
+    public function findByIds(array $ids)
+    {
+        return collect($ids)->map(function ($id) {
+                return $this->articleRepository->find($id);
+            }
+        );
+    }
+
+    public function findByIdWithTag($id)
+    {
+        $criteria = Criteria::create()->where('id', $id)->with(['tags']);
+        return $this->articleRepository->get($criteria);
     }
 
     public function createArticle($params, $user_id)
