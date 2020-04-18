@@ -10,4 +10,16 @@ class Article extends Model
     use SoftDeletes;
 
     protected $guarded = [];
+
+    public function tags()
+    {
+        return $this->hasManyThrough(
+            Tag::class,
+            TagArticle::class,
+            'article_id',
+            'id',
+            'id',
+            'tag_id'
+        );
+    }
 }
