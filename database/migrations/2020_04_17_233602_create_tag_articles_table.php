@@ -17,7 +17,7 @@ class CreateTagArticlesTable extends Migration
             $table->id();
             $table->integer('tag_id');
             $table->integer('article_id');
-            $table->timestamp('created_at');
+            $table->timestamps();
             $table->softDeletes();
         });
     }
