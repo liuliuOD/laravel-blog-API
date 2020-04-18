@@ -7,7 +7,8 @@ use BlogAPI\Services\TagService;
 use BlogAPI\Services\ArticleService;
 use BlogAPI\Services\TagArticleService;
 use BlogAPI\Validators\ArticleValidator;
-use BlogAPI\Exceptions\UnauthorizationException;
+use BlogAPI\Exceptions\NotFoundException;
+use BlogAPI\Exceptions\ForbiddenException;
 use BlogAPI\Exceptions\InvalidParameterException;
 
 class ArticlesController extends Controller
@@ -53,11 +54,7 @@ class ArticlesController extends Controller
             throw new InvalidParameterException($valid->errors()->first());
         }
 
-        if (! $user = auth()->user()) {
-            throw new UnauthorizationException();
-        }
-
-        $tagArticles = $this->articleService->createArticleAndTag($params, $user['id']);
+        $tagArticles = $this->articleService->createArticleAndTag($params, $request->user()->id);
 
         return response()->json(self::RESPONSE_OK, self::RESPONSE_OK_CODE);
     }
@@ -90,13 +87,12 @@ class ArticlesController extends Controller
             throw new InvalidParameterException($valid->errors()->first());
         }
 
-        if (! $user = auth()->user()) {
-            throw new UnauthorizationException();
-        }
-
         $article = $this->articleService->findById($id);
-        if ($user['id'] != $article['user_id']) {
-            throw new UnauthorizationException('你不能修改別人的文章。');
+        if (! $article) {
+            throw new NotFoundException();
+        }
+        if ($request->user()->id != $article['user_id']) {
+            throw new ForbiddenException();
         }
 
         $this->articleService->updateArticleAndTag($params, $id);
@@ -110,8 +106,18 @@ class ArticlesController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
-        //
+        $article = $this->articleService->findById($id);
+        if (! $article) {
+            throw new NotFoundException();
+        }
+        if ($request->user()->id != $article['user_id']) {
+            throw new ForbiddenException();
+        }
+
+        $this->articleService->deleteArticle($id);
+
+        return response()->json(self::RESPONSE_OK, self::RESPONSE_OK_CODE);
     }
 }

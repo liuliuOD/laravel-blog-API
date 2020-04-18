@@ -116,4 +116,9 @@ class ArticleService
             throw new InternalServerException($e->getMessage());
         }
     }
+
+    public function deleteArticle($id)
+    {
+        return $this->articleRepository->delete($id);
+    }
 }
