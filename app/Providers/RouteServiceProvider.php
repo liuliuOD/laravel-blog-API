@@ -30,7 +30,7 @@ class RouteServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
+        Route::pattern('articles', '[0-9]+');
 
         parent::boot();
     }
@@ -45,6 +45,8 @@ class RouteServiceProvider extends ServiceProvider
         $this->mapApiRoutes();
 
         $this->mapWebRoutes();
+
+        $this->mapApiV1Routes();
 
         //
     }
@@ -76,5 +78,15 @@ class RouteServiceProvider extends ServiceProvider
             ->middleware('api')
             ->namespace($this->namespace)
             ->group(base_path('routes/api.php'));
+    }
+
+    
+    protected function mapApiV1Routes()
+    {
+        Route::middleware('api')
+            ->namespace($this->namespace)
+            ->prefix('/v1')
+            ->name('api.v1.')
+            ->group(base_path('routes/api/v1.php'));
     }
 }
