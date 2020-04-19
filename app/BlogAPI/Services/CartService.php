@@ -7,13 +7,25 @@ class CartService
 {
     protected $cartRepository;
 
-    public function addItemToCart(array $item)
+    public function addItemsToCart($items)
     {
-        
+        $items = $items->map(function ($item) {
+                return [
+                    'id' => $item->id,
+                    'name' => $item->title,
+                    'price' => $item->price,
+                    'quantity' => 1,
+                ];
+            })
+            ->toArray();
+
+        Cart::add($items);
+
+        return $this;
     }
 
-    public function clearCart()
+    public function getItems()
     {
-
+        return Cart::getContent();
     }
 }

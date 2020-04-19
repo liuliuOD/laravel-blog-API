@@ -25,5 +25,5 @@ Route::middleware('auth:api')->group(function () {
         ->except(['create', 'edit']);
 
     Route::resource('carts', 'CartsController')
-        ->only(['index', 'store', 'show']);
+        ->only(['store']);
 });

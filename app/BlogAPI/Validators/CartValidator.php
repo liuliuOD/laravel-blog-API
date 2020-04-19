@@ -14,19 +14,15 @@ class CartValidator
         $this->params = $params;
 
         $this->messages = [
-            'username.required' => '請輸入您的姓名',
-            'email.required' => '請輸入電子郵件',
-            'email.email' => '請輸入正確的電子郵件格式',
-            'email.exists' => '您尚未成為會員',
-            'email.unique' => ':email 已存在，請輸入其他的電子郵件',
-            'password.required' => '請輸入密碼',
-            'password.min' => '請輸入至少 :min 位字元的密碼',
+            'article_ids.required' => '缺少購買品項',
+            'article_ids.array' => '傳入格式錯誤',
         ];
     }
 
     public function setAddItemRule()
     {
         $this->rules = [
+            'article_ids' => 'required|array',
         ];
 
         return $this;
