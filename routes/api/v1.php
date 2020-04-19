@@ -26,4 +26,7 @@ Route::middleware('auth:api')->group(function () {
 
     Route::resource('carts', 'CartsController')
         ->only(['store']);
+
+    Route::resource('payments', 'PaymentsController')
+        ->only(['store']);
 });

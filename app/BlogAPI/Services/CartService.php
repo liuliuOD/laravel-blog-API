@@ -28,4 +28,9 @@ class CartService
     {
         return Cart::getContent();
     }
+
+    public function getTotal()
+    {
+        return Cart::getTotal();
+    }
 }
