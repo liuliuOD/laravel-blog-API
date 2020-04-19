@@ -23,4 +23,7 @@ Route::prefix('auth')->group(function(){
 Route::middleware('auth:api')->group(function () {
     Route::resource('articles', 'ArticlesController')
         ->except(['create', 'edit']);
+
+    Route::resource('carts', 'CartsController')
+        ->only(['index', 'store', 'show']);
 });
