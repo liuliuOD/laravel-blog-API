@@ -13,5 +13,9 @@ class Order extends Model
 
     const INVOICE_STATUS_PENDING = 'PENDING';
 
+    const PAYMENT_METHOD_ATM = 'ATM';
+    const PAYMENT_METHOD_CVS = 'CVS';
+    const PAYMENT_METHOD_CREDITCARD = 'CREDIT_CARD';
+
     protected $guarded = [];
 }

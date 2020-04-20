@@ -6,7 +6,6 @@ use Illuminate\Http\Request;
 use BlogAPI\Services\CartService;
 use BlogAPI\Services\ArticleService;
 use BlogAPI\Validators\CartValidator;
-use BlogAPI\Exceptions\NotFoundException;
 use BlogAPI\Exceptions\InvalidParameterException;
 
 class CartsController extends Controller
@@ -39,8 +38,12 @@ class CartsController extends Controller
             throw new InvalidParameterException($valid->errors()->first());
         }
 
-        $articles = $this->articleService->findByIds($params['article_ids']);
-        if (! $articles) {
+        $articles = $this->articleService
+            ->findByIds($params['article_ids'])
+            ->filter(function ($article) {
+                return $article !== null;
+            });
+        if ($articles->isEmpty()) {
             throw new InvalidParameterException();
         }
 
