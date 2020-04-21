@@ -8,7 +8,6 @@ class ATMPayment extends AbstractPayment
 
     public function setTradeInfo($orderNo, $amount)
     {
-        $ngrokURL = 'https://dd259fee.ngrok.io';
         $tradeInfo = array(
                 'MerchantID' => $this->merchantId,
                 'RespondType' => self::RESPOND_TYPE,
@@ -20,8 +19,7 @@ class ATMPayment extends AbstractPayment
                 'Email' => request()->user()->email,
                 'LoginType' => 0,
                 'VACC' => 1,
-                'NotifyURL' => $ngrokURL . '/notify',
-                'CustomerURL' => $ngrokURL . '/customer',
+                'NotifyURL' => route('api.v1.notify'),
             );
 
         //交易資料經 AES 加密後取得 TradeInfo

@@ -7,6 +7,7 @@ use BlogAPI\Services\CartService;
 use BlogAPI\Services\OrderService;
 use BlogAPI\Services\PaymentService;
 use BlogAPI\Services\ArticleService;
+use BlogAPI\Services\InvoiceService;
 use BlogAPI\Validators\PaymentsValidator;
 use BlogAPI\Exceptions\NotFoundException;
 use BlogAPI\Transformers\OrderTransformer;
@@ -19,6 +20,7 @@ class PaymentsController extends Controller
     protected $orderService;
     protected $articleService;
     protected $paymentService;
+    protected $invoiceService;
     protected $userArticlePermissionService;
 
     public function __construct(
@@ -26,6 +28,7 @@ class PaymentsController extends Controller
         OrderService $orderService,
         ArticleService $articleService,
         PaymentService $paymentService,
+        InvoiceService $invoiceService,
         UserArticlePermissionService $userArticlePermissionService
     )
     {
@@ -33,6 +36,7 @@ class PaymentsController extends Controller
         $this->orderService = $orderService;
         $this->articleService = $articleService;
         $this->paymentService = $paymentService;
+        $this->invoiceService = $invoiceService;
         $this->userArticlePermissionService = $userArticlePermissionService;
     }
 
@@ -62,7 +66,8 @@ class PaymentsController extends Controller
         }
 
         $amount = $this->cartService->addItemsToCart($articles)->getTotal();
-        $orderInfo = $this->orderService->addOrder(OrderTransformer::toDatabase($amount));
+        $orderName = $articles->implode('title', '+');
+        $orderInfo = $this->orderService->addOrder(OrderTransformer::toDatabase($amount, $orderName));
 
         $articleIds = $articles->pluck('id')->toArray();
         $permission = $this->userArticlePermissionService->addUnPaidPermissions($articleIds, $orderInfo->id);
@@ -76,5 +81,19 @@ class PaymentsController extends Controller
                 $thirdResponse,
                 self::RESPONSE_201
             );
+    }
+
+    public function notify(Request $request)
+    {
+        $params = $request->only(['order_no']);
+
+        $order = $this->orderService->findOrderAndUserByOrderNo($params['order_no']);
+        if (! $order) {
+            throw new NotFoundException();
+        }
+
+        $invoice = $this->invoiceService->issueInvoice($order);
+
+        return $invoice;
     }
 }

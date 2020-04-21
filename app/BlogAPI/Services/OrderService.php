@@ -18,4 +18,11 @@ class OrderService
     {
         return $this->orderRepository->create($orderInfo);
     }
+
+    public function findOrderAndUserByOrderNo($orderNo)
+    {
+        $criteria = Criteria::create()->with(['user'])->where('order_no', $orderNo);
+
+        return $this->orderRepository->first($criteria);
+    }
 }

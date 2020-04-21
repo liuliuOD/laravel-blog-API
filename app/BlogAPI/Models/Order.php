@@ -18,4 +18,9 @@ class Order extends Model
     const PAYMENT_METHOD_CREDITCARD = 'CREDIT_CARD';
 
     protected $guarded = [];
+
+    public function user()
+    {
+        return $this->hasOne(User::class, 'id', 'user_id');
+    }
 }

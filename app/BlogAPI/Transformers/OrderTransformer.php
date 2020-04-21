@@ -6,7 +6,7 @@ use BlogAPI\Models\Order;
 
 class OrderTransformer
 {
-    public static function toDatabase($amount)
+    public static function toDatabase($amount, $orderName)
     {
         $userId = request()->user()->id;
         $orderNum = 'OD_' . $userId . time();
@@ -18,6 +18,7 @@ class OrderTransformer
             'total' => $amount,
             'paid_status' => Order::PAY_STATUS_NOT_PAID,
             'invoice_status' => Order::INVOICE_STATUS_PENDING,
+            'order_name' => $orderName,
         ];
     }
 }

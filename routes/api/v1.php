@@ -30,3 +30,5 @@ Route::middleware('auth:api')->group(function () {
     Route::resource('payments', 'PaymentsController')
         ->only(['store']);
 });
+
+Route::post('/payment-notify', 'PaymentsController@notify')->name('notify');
