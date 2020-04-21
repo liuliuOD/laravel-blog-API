@@ -90,7 +90,7 @@ class ArticlesController extends Controller
 
         $userId = $request->user()->id;
         $permission = $this->articleService->findPermissionByUserIdAndArticleId($userId, $id)->first();
-        if (($userId != $article['user_id']) && ! $article['is_free'] && (! $permission || $permission->read === false)) {
+        if (($userId != $article['user_id']) && ! $article['is_free'] && (! $permission || $permission->read == false)) {
             throw new ForbiddenException();
         }
 
