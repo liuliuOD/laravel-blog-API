@@ -19,7 +19,8 @@ class ArticleValidator
             'title.max' => '標題過長',
             'content.required' => '請輸入文章內容',
             'content.string' => '內容格式錯誤',
-            'tag.max' => '標籤長度請勿大於 :max 位字元'
+            'tag.max' => '標籤長度請勿大於 :max 位字元',
+            'price.integer' => '價格請輸入數字'
         ];
     }
 
@@ -29,6 +30,7 @@ class ArticleValidator
             'title' => 'required|string|max:256',
             'content' => 'required|string',
             'tag' => 'array|max:32',
+            'price' => 'integer'
         ];
 
         return $this;
