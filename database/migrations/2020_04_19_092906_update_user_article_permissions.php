@@ -26,7 +26,7 @@ class UpdateUserArticlePermissions extends Migration
     public function down()
     {
         Schema::table('user_article_permissions', function (Blueprint $table) {
-            //
+            $table->dropColumn('order_id');
         });
     }
 }

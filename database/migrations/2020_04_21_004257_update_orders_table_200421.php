@@ -14,7 +14,7 @@ class UpdateOrdersTable200421 extends Migration
     public function up()
     {
         Schema::table('orders', function (Blueprint $table) {
-            $table->string('order_name');
+            $table->string('order_name')->after('invoice_status');
         });
     }
 
@@ -26,7 +26,7 @@ class UpdateOrdersTable200421 extends Migration
     public function down()
     {
         Schema::table('orders', function (Blueprint $table) {
-            //
+            $table->dropColumn('order_name');
         });
     }
 }

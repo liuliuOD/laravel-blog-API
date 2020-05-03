@@ -13,8 +13,8 @@ class UpdateOrders200427 extends Migration
      */
     public function up()
     {
-        Schema::table('articles', function (Blueprint $table) {
-            $table->string('bank_type');
+        Schema::table('orders', function (Blueprint $table) {
+            $table->string('bank_type')->default(null)->nullable()->after('invoice_status');
         });
     }
 
@@ -25,6 +25,8 @@ class UpdateOrders200427 extends Migration
      */
     public function down()
     {
-        //
+        Schema::table('orders', function (Blueprint $table) {
+            $table->dropColumn('bank_type');
+        });
     }
 }
