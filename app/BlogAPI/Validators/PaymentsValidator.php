@@ -24,7 +24,8 @@ class PaymentsValidator
     {
         $this->rules = [
             'article_ids' => 'required|array',
-            'payment_method' => 'required|in:ATM,CREDIT_CARD,CVS',
+            'payment_method' => 'required|in:ATM,CREDIT_CARD,CVS,LINE',
+            'bank_type' => 'required_if:payment_method, ATM|in:Esun,BOT,Taishin,HNCB',
         ];
 
         return $this;

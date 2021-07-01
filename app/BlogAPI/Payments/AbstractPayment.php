@@ -6,10 +6,8 @@ use GuzzleHttp\Client;
 
 abstract class AbstractPayment
 {
-    const VERSION = 1.5;
+    const VERSION = 1.0;
     const RESPOND_TYPE = 'JSON';
-    const URL = 'https://core.newebpay.com/MPG/mpg_gateway';
-    const TEST_URL = 'https://ccore.newebpay.com/MPG/mpg_gateway';
 
     protected $merchantKey;
     protected $merchantIV;
@@ -17,13 +15,17 @@ abstract class AbstractPayment
     protected $url;
     protected $tradeInfo;
     protected $tradeSha;
+    protected $originTradeInfo;
+
+    abstract function setTradeData($orderInfo);
 
     public function __construct()
     {
         $this->merchantKey = env('NEWEBPAY_HASH_KEY', '');
         $this->merchantIV = env('NEWEBPAY_HASH_IV', '');
         $this->merchantId = env('NEWEBPAY_MERCHANT_ID');
-        $this->url = env('APP_ENV', 'local') == 'local' ? self::TEST_URL : self::URL;
+
+        $this->url = env('APP_ENV', 'local') == 'local' ? $this->testUrl : $this->formalUrl;
     }
 
     public function checkParams()
@@ -31,24 +33,9 @@ abstract class AbstractPayment
         return [
             'url' => $this->url,
             'info' => $this->tradeInfo,
+            'origin info' => $this->originTradeInfo,
             'sha' => $this->tradeSha,
         ];
-    }
-
-    public function sendRequest()
-    {
-        $client = new Client();
-
-        $data = [
-            'MerchantID' => $this->merchantId,
-            'TradeInfo' => $this->tradeInfo,
-            'TradeSha' => $this->tradeSha,
-            'Version' => self::VERSION,
-        ];
-
-        return $client->request('POST', $this->url, [
-            'form_params' => $data
-        ]);
     }
 
     public function setTradeSha()
@@ -58,6 +45,20 @@ abstract class AbstractPayment
         $this->tradeSha = strtoupper(hash("sha256", $shaString));
 
         return $this;
+    }
+
+    public function sendRequest()
+    {
+        $client = new Client();
+
+        $data = [
+            'MerchantID_' => $this->merchantId,
+            'PostData_' => $this->tradeInfo,
+        ];
+
+        return $client->request('POST', $this->url, [
+            'form_params' => $data
+        ]);
     }
 
     public function create_mpg_aes_encrypt($parameter = '' , $key = '', $iv = '')
