@@ -26,7 +26,7 @@ class UpdateArticlesTable extends Migration
     public function down()
     {
         Schema::table('articles', function (Blueprint $table) {
-            //
+            $table->dropColumn('is_free');
         });
     }
 }

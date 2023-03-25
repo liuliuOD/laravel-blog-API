@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class UpdateOrdersTable200421 extends Migration
+class UpdateOrders200427 extends Migration
 {
     /**
      * Run the migrations.
@@ -14,7 +14,7 @@ class UpdateOrdersTable200421 extends Migration
     public function up()
     {
         Schema::table('orders', function (Blueprint $table) {
-            $table->string('order_name')->after('invoice_status');
+            $table->string('bank_type')->default(null)->nullable()->after('invoice_status');
         });
     }
 
@@ -26,7 +26,7 @@ class UpdateOrdersTable200421 extends Migration
     public function down()
     {
         Schema::table('orders', function (Blueprint $table) {
-            $table->dropColumn('order_name');
+            $table->dropColumn('bank_type');
         });
     }
 }

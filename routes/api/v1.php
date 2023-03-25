@@ -32,3 +32,5 @@ Route::middleware('auth:api')->group(function () {
 });
 
 Route::post('/payment-notify', 'PaymentsController@notify')->name('notify');
+
+Route::get('/line-payment-notify', 'PaymentsController@lineNotify')->name('line-notify');

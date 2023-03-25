@@ -4,6 +4,7 @@ namespace BlogAPI\Services;
 use DB;
 use BlogAPI\Models\Order;
 use BlogAPI\Payments\ATMPayment;
+use BlogAPI\Payments\LinePayment;
 use Recca0120\Repository\Criteria;
 use BlogAPI\Repositories\OrderRepository;
 
@@ -23,8 +24,10 @@ class PaymentService
             case Order::PAYMENT_METHOD_ATM:
                 $this->paymentProvider = new ATMPayment();
                 break;
+            case Order::PAYMENT_METHOD_LINE:
+                $this->paymentProvider = new LinePayment();
+                break;
             case Order::PAYMENT_METHOD_CVS:
-
                 break;
             case Order::PAYMENT_METHOD_CREDITCARD:
                 break;
@@ -35,11 +38,16 @@ class PaymentService
         return $this;
     }
 
-    public function setTradeData($orderNo, $amount)
+    public function setTradeData($orderInfo)
     {
-        $this->paymentProvider
-            ->setTradeInfo($orderNo, $amount)
-            ->setTradeSha();
+        $this->paymentProvider->setTradeData($orderInfo);
+
+        return $this;
+    }
+
+    public function setConfirmData($orderInfo, $transaction_id, $type)
+    {
+        $this->paymentProvider->setConfirmData($orderInfo, $transaction_id, $type);
 
         return $this;
     }
@@ -52,5 +60,12 @@ class PaymentService
             'status' => $response->getStatusCode(),
             'content' => json_decode($response->getBody()->getContents(), true)
         ];
+    }
+
+    public function testLine($params = [])
+    {
+        $this->paymentProvider = new LinePayment();
+
+        return $this->paymentProvider->test($params);
     }
 }

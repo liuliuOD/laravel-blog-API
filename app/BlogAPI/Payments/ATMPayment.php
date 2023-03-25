@@ -6,25 +6,38 @@ class ATMPayment extends AbstractPayment
 {
     const ITEM_DESC = 'Pay by ATM.';
 
-    public function setTradeInfo($orderNo, $amount)
+    protected $testUrl = 'https://ccore.spgateway.com/API/gateway/vacc';
+    protected $formalUrl = 'https://core.spgateway.com/API/gateway/vacc';
+
+
+    public function setTradeData($orderInfo)
     {
-        $tradeInfo = array(
-                'MerchantID' => $this->merchantId,
+        $this->setTradeInfo($orderInfo)
+            ->setTradeSha();
+        
+        return $this;
+    }
+
+    public function setTradeInfo($orderInfo)
+    {
+        $this->originTradeInfo = array(
                 'RespondType' => self::RESPOND_TYPE,
                 'TimeStamp' => time(),
                 'Version' => self::VERSION,
-                'MerchantOrderNo' => $orderNo,
-                'Amt' => $amount,
-                'ItemDesc' => self::ITEM_DESC,
-                'Email' => request()->user()->email,
-                'LoginType' => 0,
-                'VACC' => 1,
+                'MerchantOrderNo' => $orderInfo->order_no,
+                'Amt' => $orderInfo->total,
+                'ProdDesc' => self::ITEM_DESC,
+                'BankType' => $orderInfo->bank_type,
                 'NotifyURL' => route('api.v1.notify'),
+                'ExpireDate' => (new \DateTime($orderInfo->created_at))
+                    ->add(new \DateInterval('P1D'))
+                    ->format('Ymd'),
+                'Email' => request()->user()->email,
             );
 
         //交易資料經 AES 加密後取得 TradeInfo
         $this->tradeInfo = $this->create_mpg_aes_encrypt(
-                $tradeInfo,
+                $this->originTradeInfo,
                 $this->merchantKey,
                 $this->merchantIV
             );
