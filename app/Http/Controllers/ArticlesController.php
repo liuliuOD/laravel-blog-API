@@ -61,7 +61,7 @@ class ArticlesController extends Controller
      */
     public function store(Request $request)
     {
-        $params = $request->only(['title', 'content', 'tag']);
+        $params = $request->only(['title', 'content', 'tag', 'price']);
 
         $valid = (new ArticleValidator($params))->setCreateArticleRule();
 

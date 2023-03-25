@@ -87,6 +87,10 @@ class ArticleService
             $attribute['content'] = $params['content'];
         }
 
+        if (Arr::exists($params, 'price')) {
+            $attribute['price'] = $params['price'];
+        }
+
         if(! isset($attribute)) {
             return $this;
         }
@@ -100,12 +104,18 @@ class ArticleService
         try {
             $article = $this->createArticle($params, $user_id);
 
-            $tagIds = $this->tagRepository
-                ->firstOrCreateTags($params['tag'])
-                ->pluck('id')
-                ->toArray();
+            if (Arr::exists($params, 'tag')) {
+                $tagIds = $this->tagRepository
+                    ->firstOrCreateTags($params['tag'])
+                    ->pluck('id')
+                    ->toArray();
 
-            $tagArticles = $this->tagArticleRepository->firstOrCreateTagUsers($tagIds, $article->id);
+                $tagArticles = $this->tagArticleRepository->firstOrCreateTagUsers($tagIds, $article->id);
+            }
+
+            if (Arr::exists($params, 'price')) {
+                $this->updateArticle($params, $article->id);
+            }
 
             DB::commit();
         } catch (\Exception $e) {

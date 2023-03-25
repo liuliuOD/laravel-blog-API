@@ -15,6 +15,7 @@ class Order extends Model
 
     const PAYMENT_METHOD_ATM = 'ATM';
     const PAYMENT_METHOD_CVS = 'CVS';
+    const PAYMENT_METHOD_LINE = 'LINE';
     const PAYMENT_METHOD_CREDITCARD = 'CREDIT_CARD';
 
     protected $guarded = [];

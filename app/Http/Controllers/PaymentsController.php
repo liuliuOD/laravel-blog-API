@@ -1,7 +1,7 @@
 <?php
-
 namespace App\Http\Controllers;
 
+use BlogAPI\Models\Order;
 use Illuminate\Http\Request;
 use BlogAPI\Services\CartService;
 use BlogAPI\Services\OrderService;
@@ -48,7 +48,7 @@ class PaymentsController extends Controller
      */
     public function store(Request $request)
     {
-        $params = $request->only(['article_ids', 'payment_method']);
+        $params = $request->only(['article_ids', 'payment_method', 'bank_type']);
 
         $valid = new PaymentsValidator($params);
         $valid->setAddOrderRule();
@@ -67,14 +67,14 @@ class PaymentsController extends Controller
 
         $amount = $this->cartService->addItemsToCart($articles)->getTotal();
         $orderName = $articles->implode('title', '+');
-        $orderInfo = $this->orderService->addOrder(OrderTransformer::toDatabase($amount, $orderName));
+        $orderInfo = $this->orderService->addOrder(OrderTransformer::toDatabase($amount, $orderName, $params));
 
         $articleIds = $articles->pluck('id')->toArray();
-        $permission = $this->userArticlePermissionService->addUnPaidPermissions($articleIds, $orderInfo->id);
+        $this->userArticlePermissionService->addUnPaidPermissions($articleIds, $orderInfo->id);
 
         $thirdResponse = $this->paymentService
             ->setPaymentMethod($params['payment_method'])
-            ->setTradeData($orderInfo->order_no, $amount)
+            ->setTradeData($orderInfo)
             ->sendTrade();
 
         return response()->json(
@@ -85,15 +85,31 @@ class PaymentsController extends Controller
 
     public function notify(Request $request)
     {
-        $params = $request->only(['order_no']);
+        $params = $request->only(['Status', 'Message', 'Result']);
+        $order = $this->orderService->findOrderAndUserByOrderNo($params);
 
-        $order = $this->orderService->findOrderAndUserByOrderNo($params['order_no']);
-        if (! $order) {
+        if (!$order) {
             throw new NotFoundException();
         }
 
         $invoice = $this->invoiceService->issueInvoice($order);
 
         return $invoice;
+    }
+
+    public function lineNotify(Request $request)
+    {
+        $params = $request->only(['transactionId', 'orderId']);
+
+        $orderInfo = $this->orderService->findOrderAndUserByOrderNo($params['orderId']);
+        $orderInfo->paid_status = Order::PAYMENT_METHOD_LINE;
+        $orderInfo->save();
+
+        $thirdResponse = $this->paymentService
+            ->setPaymentMethod(Order::PAYMENT_METHOD_LINE)
+            ->setConfirmData($orderInfo, $params['transactionId'], 'confirm')
+            ->sendTrade();
+
+        return $thirdResponse;
     }
 }
